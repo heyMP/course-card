@@ -2,6 +2,8 @@
 <html lang="en-GB">
   <head>
     <meta charset="utf-8" />
+    <link rel="stylesheet" href="./psu-theme-default.css">
+    <!-- <link rel="stylesheet" href="./osu-theme-default.css"> -->
     <style>
       body {
         background: #fafafa;
@@ -16,6 +18,18 @@
         grid-column-gap: var(--haxtheme-courses-course-grid-column-gap, 2vw);
         grid-row-gap: var(--haxtheme-courses-course-grid-row-gap, 2vw);
       }
+/* 
+      :root {
+        --course-card--font-family: "serif";
+      }
+
+      course-card::part(header){
+        text-decoration: underline;
+      }
+
+      course-card:nth-of-type(even) {
+        --theme--color--ui--base: yellow;
+      } */
 
     </style>
   </head>
@@ -32,6 +46,7 @@
             <course-card
               url="https://google.com"
               image="https://unsplash.it/450/300"
+              style="--course-card--font-family:fantasy; --theme--color--ui--base: purple"
             >
               <div slot="title">ASTRO 001</div>
               <div slot="subtitle">Astronomical Universe</div>

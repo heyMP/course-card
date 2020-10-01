@@ -6,16 +6,17 @@ export class CourseCard extends LitElement {
   static get styles() {
     return css`
       :host {
+        --local--font-family: var(--theme--FontFamily);
+        --local--color--ui--base: var(--theme--color--ui--base);
+        --local--course-card--accent: var(--theme--color--ui--accent);
         font-size: 16px;
         display: block;
         border: solid 1px #dcdcdc;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        font-family: var(--local--font-family, var(--course-card--font-family, "serif"));
+        background-color: var(--course-card--background-color, var(--local--color--ui--base, #000));
       }
-      :host:hover {
-        box-shadow: var(
-          --courses-course-card-hover-box-shadow,
-          1px 1px 5px #dcdcdc
-        );
+      :host(:hover) {
+        box-shadow: 1px 1px 5px var(--course-card--box-shadow, var(--local--course-card--accent,  #dcdcdc));
       }
       a {
         text-decoration: var(--course-card-a-text-decoration);
@@ -45,8 +46,8 @@ export class CourseCard extends LitElement {
         width: 100%;
         height: 100%;
       }
-      [part="course_number"],
-      [part="course_number"] slot::slotted(*){
+      [part*="course_number"],
+      [part*="course_number"] slot::slotted(*){
         font-size: var(--course-card--course-number--font-size, 1.75rem);
         text-transform: var(
           --course-card--course-number--text-transform
@@ -59,14 +60,14 @@ export class CourseCard extends LitElement {
         margin: var(--course-card--course-number--margin, 0.5rem 1rem 0);
         font-weight: var(--course-card--course-number--font-weight, 400);
       }
-      [part="course_title"],
-      [part="course_title"] slot::slotted(*) {
+      [part*="course_title"],
+      [part*="course_title"] slot::slotted(*) {
         font-size: var(--course-card-course-name-font-size, 1.125rem);
         text-align: var(--course-card-course-name-text-align, center);
         margin: var(--course-card-course-name-margin, 0 1rem 1rem);
         line-height: 1.2;
       }
-      [part="course_icon"] {
+      [part*="course_icon"] {
         background-color: var(
           --course-card-course-icon-background-color, #fff
         );
@@ -77,7 +78,7 @@ export class CourseCard extends LitElement {
         position: var(--course-card-course-icon-position, relative);
         margin: var(--course-card-course-icon-margin, 0 auto);
         border: var(--course-card-course-icon-border, solid);
-        border-color: var(--course-card-course-icon-border-color);
+        border-color: var(--course-card--border-color, var(--local--color--ui--base, #000));
         border-width: var(--course-card-course-icon-border-width, 5px);
 
         height: var(--course-card--course-icon--height, 100px);
@@ -92,15 +93,15 @@ export class CourseCard extends LitElement {
         height: var(--course-card-iron-icon-height, 70px);
         fill: var(--course-card-iron-icon-color);
       }
-      [part = "course_image"] {
+      [part*="course_image"] {
         width: var(--course-card--course-image--width, 100%);
         height: var(--course-card--course-image--width, 150px);
       }
-      [part = "course_image"] + .card_body > [part = "course_icon"] {
+      [part*="course_image"] + .card_body > [part*="course_icon"] {
         bottom: var(--course-card-course-icon-position-bottom, 67px);
         margin: var(--course-card-course-icon-margin, 0 auto -65px auto);
       }
-      [part = "course_icon"] {
+      [part*="course_icon"] {
         background-repeat: var(
           --course-card-course-image-background-repeat,
           no-repeat
@@ -178,11 +179,12 @@ export class CourseCard extends LitElement {
   }
 
   __checkFieldIsAvailable(field) {
-    let slot = this[field];
-    console.log(slot);
-    if (typeof(slot) != "undefined" && slot !== "") {
+    // check if we have a property by that name that has a value
+    if (typeof this[field] !== "undefined" && this[field] !== "") {
       return true
-    } else if (this.querySelector("[slot='${slot}']")) {
+    }
+    // then check if we have a slot with that name in the lightdom
+    else if (this.querySelector(`[slot='${field}']`)) {
       return true
     }
     return false;
@@ -202,8 +204,16 @@ export class CourseCard extends LitElement {
     const icon = this.__checkFieldIsAvailable("icon");
     const image = this.__checkFieldIsAvailable("image");
 
+    const bgColorRGB = getComputedStyle(this).backgroundColor;
+    const bgColorRGBArray = bgColorRGB.split(/[\,|\ |\(|\)]/)
+      .filter(i => (i !== "" && i !== "rgb"))
+      .map(i => Math.round(parseInt(i) * .70))
+      .join(", ")
+    const newBgColor = `rgb(${bgColorRGBArray})`
+    this.style.backgroundColor = newBgColor;
+
     return html`
-        <div class="card_wrap">
+        <div part="card_wrap">
         <a href="${this.url}" target="_blank">
           ${(image) ? html`
           <div
@@ -223,10 +233,10 @@ export class CourseCard extends LitElement {
                 </slot>
               </div>
             ` : html``}
-            <div part="course_number">
+            <div part="course_number header">
               <slot name="title">${this.number}</slot>
             </div>
-            <div part="course_title">
+            <div part="course_title header">
               <slot name="subtitle">${this.title}</slot>
             </div>
           </div>
